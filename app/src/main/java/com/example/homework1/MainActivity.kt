@@ -1,111 +1,118 @@
 package com.example.homework1
 
-import android.annotation.SuppressLint
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.navigation.compose.rememberNavController
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 
-import java.util.*
+data class City(val name: String, val description: String, val imageUrl: String)
+@Preview(showBackground = true)
+@Composable
+fun WelcomeScreenPreview() {
+    WelcomeScreen(rememberNavController())
+}
 
-@SuppressLint("NewApi")
-fun main() {
-    // 1. Declare an array and a list of your choice, initialize them with values,
-    // and print the elements.
-    val array = arrayOf(1, 2, 3, 4)
-    val list = listOf("a", "b", "c", "d")
-    println("Array: ${array.contentToString()}")
-    println("List: ${list.joinToString()}")
+@Preview(showBackground = true)
+@Composable
+fun CityListScreenPreview() {
+    CityListScreen(rememberNavController())
+}
 
-//     2. Create a string variable and perform various string manipulations
-//     such as concatenation, substring extraction, and changing case,
-//     then print the modified string.
-    val str = "String"
-    println("Concatenated String: $str" + " concatenation")
-    println("Substring: ${str.substring(3)}")
-    println("Lowercase: ${str.lowercase()}")
-    println("Uppercase: ${str.uppercase()}")
+@Preview(showBackground = true)
+@Composable
+fun CityDetailScreenPreview() {
+    CityDetailScreen("Yerevan")
+}
 
-//     3.Declare a map with key-value pairs and iterate through it to print both keys and values.
-    val map = mapOf("1" to "a", "2" to "b", "3" to "c")
-    map.forEach { (key, value) -> println("Key: $key, Value: $value") }
+@Composable
+fun CityExplorerAppPreview() {
+    CityExplorerApp()
+}
 
-//     4.	Write a function that takes an integer as input
-//     and returns a string indicating whether it's positive, negative, or zero.
-    fun numberSign(number: Int): String {
-        return if(number > 0)
-            "Positive"
-        else if (number < 0)
-            "Negative"
-        else
-            "Zero"
-    }
-    val number1 = 0
-    val number2 = -1
-    val number3 = 1
-    println("Number 1: ${numberSign(number1)}")
-    println("Number 2: ${numberSign(number2)}")
-    println("Number 3: ${numberSign(number3)}")
-
-    //5.	Create a program that asks the user for their name and age,
-    // then prints a personalized greeting with their name and a message based on their age.
-    val scanner = Scanner(System.`in`)
-    print("Enter your name: ")
-    val name = scanner.nextLine()
-    print("Enter your age: ")
-    val age = scanner.nextInt()
-    println("Hello, $name! You are $age years old.")
-
-    //6 a function that takes two numbers as input and divides them.
-    // Implement error handling to handle division by zero and print an appropriate message.
-    fun divide(a: Int, b: Int): String {
-        return try {
-            if (b == 0) {
-                throw ArithmeticException("Division by zero is not allowed.")
-            } else {
-                (a / b).toString()
+@Composable
+fun WelcomeScreen(navController: NavHostController) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "City Explorer")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                navController.navigate("cityListScreen")
             }
-        } catch (e: ArithmeticException) {
-            e.message ?: "Error"
+        ) {
+            Text(text = "Explore Cities")
         }
     }
-    val result1 = divide(10, 2)
-    val result2 = divide(5, 0)
-    println("Result 1: $result1")
-    println("Result 2: $result2")
+}
+@Composable
+fun CityListScreen(navController: NavHostController) {
+    val cities = listOf(
+        City("Yerevan", "capital of Armenia.", "https://images.app.goo.gl/3mVTKZgVvWMCjJ4r9"),
+        City("Washington", "capital of the United States.", "https://images.app.goo.gl/LJ8mWcgKy1WPKAkj6"),
+        City("Madrid", "capital of Spain.", "https://images.app.goo.gl/M5hVbKaQkiiLatm9A")
+    )
 
-    // 7. Current date and time
-    println("Current Date: ${LocalDate.now()}")
-    println("Current Date with time: ${LocalDateTime.now()
-                                        .format(DateTimeFormatter
-                                            .ofPattern("yyyy-MM-dd HH:mm"))}")
-
-
-    //8
-    class Person(val name: String, val age: Int){
-        override fun toString(): String {
-            return "Name: $name, Age: $age"
-        }
-
-        //9.
-        fun lifeStage(age: Int): String {
-            return if(age <= 12)
-                "Life stage: Child"
-            else if(age in 13 .. 17)
-                "Life stage: Teenager"
-            else
-              "Life stage: Adult"
+    LazyColumn {
+        items(cities.size) { index ->
+            val city = cities[index]
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate("cityDetailScreen/${city.name}")
+                    }
+            ) {
+                Text(text = city.name, style = MaterialTheme.typography.bodyMedium)
+                Text(text = city.description, style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
-    val person = Person("A", 24)
-    println(person)
-    println(person.lifeStage(person.age))
+}
 
 
-    //10
-    fun evenNumbers(list: List<Int>): List<Int>{
-        return list.filter { it % 2 == 0 }
+
+
+@Composable
+fun CityExplorerApp() {
+    val navController = rememberNavController()
+    NavHost(
+        navController = navController,
+        startDestination = "welcomeScreen"
+    ) {
+        composable("welcomeScreen") { WelcomeScreen(navController) }
+        composable("cityListScreen") { CityListScreen(navController) }
+        composable(
+            route = "cityDetailScreen/{cityName}",
+            arguments = listOf(navArgument("cityName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val cityName = backStackEntry.arguments?.getString("cityName")
+            cityName?.let {
+                CityDetailScreen(it) // Pass the cityName to the composable
+            }
+        }
     }
 
-    val numbers = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-    println("Even Numbers: ${evenNumbers(numbers).joinToString()}")
+}
+@Composable
+fun CityDetailScreen(cityName: String) {
+    Text(
+        text = "City: $cityName",
+        modifier = Modifier.padding(16.dp)
+    )
 }
